@@ -30,9 +30,7 @@ export async function POST(request) {
           },
           {
             type: 'text',
-            text: 'Analyze this supplement label and extract: supplement 
-name, dosage per serving, form (capsule/tablet/etc), and best timing to 
-take it. Respond only with valid JSON in this exact format: 
+            text: 'Extract supplement data as JSON: 
 {"name":"","dosage":"","form":"","timing":""}'
           }
         ]
@@ -43,15 +41,12 @@ take it. Respond only with valid JSON in this exact format:
     const match = text.match(/\{[\s\S]*\}/)
     
     if (!match) {
-      return NextResponse.json({ error: 'Could not parse response' }, { 
-status: 400 })
+      return NextResponse.json({ error: 'Parse failed' }, { status: 400 })
     }
 
     return NextResponse.json(JSON.parse(match[0]))
 
   } catch (error) {
-    console.error('Vision API error:', error)
-    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 
-})
+    return NextResponse.json({ error: 'Failed' }, { status: 500 })
   }
 }
