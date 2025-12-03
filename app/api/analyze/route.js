@@ -11,46 +11,62 @@ export async function POST(request) {
 
     if (!supplements || supplements.length < 2) {
       return NextResponse.json(
-        { error: 'Please provide at least 2 supplements' },
+        { error: 'Need at least 2 supplements' },
         { status: 400 }
       )
     }
 
-    // Format supplements for analysis
     const supplementList = supplements.map(s => 
-      `${s.name}${s.dosage ? ` (${s.dosage})` : ''}${s.timing ? ` - ${s.timing}` : ''}`
+      `- ${s.name}${s.dosage ? ` (${s.dosage})` : ''}${s.timing ? ` - taken ${s.timing}` : ''}`
     ).join('\n')
 
-    const prompt = `You are a supplement interaction expert. Analyze the following supplement stack and provide:
+    const prompt = `You are an expert supplement analyst. Analyze this supplement stack and provide a comprehensive, actionable report.
 
-1. **Dangerous Interactions**: Any supplements that should NOT be taken together
-2. **Timing Conflicts**: Supplements that block each other's absorption
-3. **Redundancies**: Overlapping nutrients or wasted money
-4. **Missing Cofactors**: Important nutrients needed for absorption
-5. **Optimization Tips**: Better timing or forms for maximum benefit
-
-Supplement Stack:
+SUPPLEMENT STACK:
 ${supplementList}
 
-Provide a clear, actionable analysis. Be specific about WHY interactions occur and WHAT to do about them.`
+Provide analysis in this EXACT JSON format:
+{
+  "overallScore": 85,
+  "summary": "Brief 2-3 sentence overview",
+  "dangerousInteractions": [
+    {"supplements": "Iron + Calcium", "severity": "high", "issue": "explanation", "solution": "what to do"}
+  ],
+  "timingConflicts": [
+    {"supplements": "names", "issue": "explanation", "solution": "optimal timing"}
+  ],
+  "redundancies": [
+    {"supplements": "names", "issue": "overlap explanation", "solution": "recommendation"}
+  ],
+  "missingCofactors": [
+    {"for": "supplement name", "missing": "cofactor name", "reason": "why needed", "benefit": "what it does"}
+  ],
+  "optimizations": [
+    {"supplement": "name", "current": "current approach", "better": "improved approach", "benefit": "expected improvement"}
+  ],
+  "moneySaved": 45,
+  "safetyScore": 8
+}
+
+Be specific, actionable, and honest. If no issues in a category, use empty array.`
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
-      messages: [
-        { role: 'user', content: prompt }
-      ],
+      max_tokens: 3000,
+      messages: [{ role: 'user', content: prompt }],
     })
 
-    const analysis = message.content[0].text
+    const text = message.content[0].text
+    const match = text.match(/\{[\s\S]*\}/)
+    
+    if (!match) {
+      return NextResponse.json({ error: 'Parse failed' }, { status: 400 })
+    }
 
-    return NextResponse.json({ analysis })
+    return NextResponse.json(JSON.parse(match[0]))
 
   } catch (error) {
     console.error('Analysis error:', error)
-    return NextResponse.json(
-      { error: 'Analysis failed', details: error.message },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 })
   }
 }
