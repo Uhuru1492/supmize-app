@@ -8,28 +8,50 @@ const anthropic = new Anthropic({
 export async function POST(request) {
   try {
     const { imageBase64 } = await request.json()
+    
     if (!imageBase64) {
       return NextResponse.json({ error: 'Image required' }, { status: 400 
 })
     }
+
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       messages: [{
         role: 'user',
         content: [
-          { type: 'image', source: { type: 'base64', media_type: 
-'image/jpeg', data: imageBase64 } },
-          { type: 'text', text: 'Extract supplement info. JSON only: 
-{"name":"","dosage":"","form":"","timing":""}' }
-        ],
-      }],
+          {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: 'image/jpeg',
+              data: imageBase64
+            }
+          },
+          {
+            type: 'text',
+            text: 'Analyze this supplement label and extract: supplement 
+name, dosage per serving, form (capsule/tablet/etc), and best timing to 
+take it. Respond only with valid JSON in this exact format: 
+{"name":"","dosage":"","form":"","timing":""}'
+          }
+        ]
+      }]
     })
+
     const text = message.content[0].text
     const match = text.match(/\{[\s\S]*\}/)
-    return NextResponse.json(match ? JSON.parse(match[0]) : { error: 
-'Parse failed' })
+    
+    if (!match) {
+      return NextResponse.json({ error: 'Could not parse response' }, { 
+status: 400 })
+    }
+
+    return NextResponse.json(JSON.parse(match[0]))
+
   } catch (error) {
-    return NextResponse.json({ error: 'Failed' }, { status: 500 })
+    console.error('Vision API error:', error)
+    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 
+})
   }
 }
