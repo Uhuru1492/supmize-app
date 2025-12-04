@@ -7,38 +7,82 @@ const anthropic = new Anthropic({
 
 export async function POST(request) {
   try {
-    const { newSupplement, currentStack } = await request.json()
-    if (!newSupplement || !currentStack) {
+    const { newSupplement, currentStack, medications, healthConditions, allergies } = await request.json()
+
+    if (!newSupplement) {
       return NextResponse.json({ error: 'Missing data' }, { status: 400 })
     }
-    const stackList = currentStack.map(s => `- ${s.name}${s.dosage ? ` 
-(${s.dosage})` : ''}`).join('\n')
-    const prompt = `You are a supplement safety expert analyzing an 
-in-store purchase decision.
 
-CURRENT STACK:
+    const stackList = currentStack?.map(s => 
+      `- ${s.name}${s.dosage ? ` (${s.dosage})` : ''}`
+    ).join('\n') || 'None'
+
+    const medsList = medications?.map(m =>
+      `- ${m.name}${m.dosage ? ` (${m.dosage})` : ''}`
+    ).join('\n') || 'None'
+
+    const conditionsList = healthConditions?.map(c => `- ${c.condition}`).join('\n') || 'None'
+    const allergiesList = allergies?.map(a => `- ${a.allergen}`).join('\n') || 'None'
+
+    const prompt = `You are a medical safety expert. A person is IN A STORE considering buying a supplement.
+
+THEIR CURRENT SUPPLEMENTS:
 ${stackList}
 
-CONSIDERING:
-${newSupplement.name}${newSupplement.dosage ? ` (${newSupplement.dosage})` 
-: ''}
+THEIR PRESCRIPTION MEDICATIONS:
+${medsList}
 
-Respond with JSON: 
-{"verdict":"safe|warning|danger","emoji":"✅|⚠️|❌","title":"short 
-verdict","reason":"explanation","action":"what to 
-do","alternatives":["alt1","alt2"],"moneySaved":0}`
+THEIR HEALTH CONDITIONS:
+${conditionsList}
+
+THEIR ALLERGIES:
+${allergiesList}
+
+NEW SUPPLEMENT THEY'RE CONSIDERING:
+${newSupplement.name}${newSupplement.dosage ? ` (${newSupplement.dosage})` : ''}
+
+CRITICAL: Check for dangerous interactions with MEDICATIONS and health conditions first - these are life-threatening!
+
+Respond ONLY with valid JSON:
+{
+  "verdict": "safe" | "warning" | "danger",
+  "emoji": "✅" | "⚠️" | "❌",
+  "title": "short verdict (5-8 words)",
+  "reason": "WHY this verdict (mention specific medications/conditions if relevant)",
+  "action": "what to do",
+  "alternatives": ["alternative 1", "alternative 2"] or null,
+  "moneySaved": 0 (if redundant with current supplements)
+}
+
+Use "danger" for:
+- Interactions with prescription medications (e.g., Vitamin K + Warfarin)
+- Contraindications with health conditions (e.g., high-dose iron + hemochromatosis)
+- Contains allergens they listed
+
+Use "warning" for:
+- Minor timing issues
+- Absorption conflicts
+- Dosage concerns
+
+Use "safe" if no issues with medications, conditions, allergies, or current supplements.`
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }]
+      messages: [{ role: 'user', content: prompt }],
     })
+
     const text = message.content[0].text
     const match = text.match(/\{[\s\S]*\}/)
-    if (!match) return NextResponse.json({ error: 'Parse failed' }, { 
-status: 400 })
+    
+    if (!match) {
+      return NextResponse.json({ error: 'Parse failed' }, { status: 400 })
+    }
+
     return NextResponse.json(JSON.parse(match[0]))
+
   } catch (error) {
+    console.error('Quick check error:', error)
     return NextResponse.json({ error: 'Failed' }, { status: 500 })
   }
 }
