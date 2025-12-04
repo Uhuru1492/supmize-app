@@ -41,14 +41,14 @@ export default async function handler(req, res) {
           quantity: 1
         }
       ],
-      success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/account?email=${email}`,
+      success_url: 'https://supmize.com/success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: `https://supmize.com/account?email=${email}`,
       metadata: {
         email
       }
     })
 
-    res.status(200).json({ sessionId: session.id })
+    res.status(200).json({ url: session.url })
   } catch (error) {
     console.error('Stripe error:', error)
     res.status(500).json({ error: error.message })

@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react'
-import { loadStripe } from '@stripe/stripe-js'
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
 export default function Account() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -20,16 +18,30 @@ export default function Account() {
     }
 
     setLoading(true)
+    setError('')
 
-    const response = await fetch('/api/subscription/create-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    })
+    try {
+      const response = await fetch('/api/subscription/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
 
-    const { sessionId } = await response.json()
-    const stripe = await stripePromise
-    await stripe.redirectToCheckout({ sessionId })
+      const data = await response.json()
+      
+      if (data.error) {
+        setError(data.error)
+        setLoading(false)
+        return
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (err) {
+      setError(err.message)
+      setLoading(false)
+    }
   }
 
   return (
@@ -50,6 +62,8 @@ export default function Account() {
           <div style={styles.feature}>✅ Priority Support</div>
           <div style={styles.feature}>✅ Save Money & Stay Safe</div>
         </div>
+
+        {error && <div style={styles.error}>{error}</div>}
 
         <input
           type="email"
@@ -124,6 +138,14 @@ const styles = {
     fontSize: '16px',
     padding: '12px 0',
     borderBottom: '1px solid #f0f0f0'
+  },
+  error: {
+    backgroundColor: '#fee',
+    color: '#c00',
+    padding: '12px',
+    borderRadius: '8px',
+    marginBottom: '16px',
+    fontSize: '14px'
   },
   input: {
     width: '100%',
