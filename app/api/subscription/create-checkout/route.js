@@ -40,8 +40,8 @@ export async function POST(request) {
           quantity: 1
         }
       ],
-      success_url: 'https://supmize.com/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: `https://supmize.com/account?email=${email}`,
+      success_url: 'https://supmize-app.vercel.app/success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: `https://supmize-app.vercel.app/account?email=${email}`,
       metadata: {
         email
       }
