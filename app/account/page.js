@@ -52,7 +52,7 @@ export default function Account() {
         <p style={styles.subtitle}>Upgrade to unlock unlimited access</p>
 
         <div style={styles.priceBox}>
-          <span style={styles.price}>$9.99</span>
+          <span style={styles.price}>$4.99</span>
           <span style={styles.period}>/month</span>
         </div>
 
