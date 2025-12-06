@@ -75,4 +75,3 @@ Be conversational, specific, and actionable. Focus on practical advice they can 
     return NextResponse.json({ error: 'Analysis failed' }, { status: 500 })
   }
 }
-
