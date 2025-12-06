@@ -9,7 +9,6 @@ export async function POST(request) {
   try {
     const { supplements, medications, healthConditions, allergies } = await request.json()
 
-    // Check if user has ANY data to analyze
     const hasData = (supplements?.length > 0) || (medications?.length > 0) || 
                     (healthConditions?.length > 0) || (allergies?.length > 0)
 
@@ -31,7 +30,7 @@ export async function POST(request) {
     const conditionsList = healthConditions?.map(c => `- ${c.condition}`).join('\n') || 'None'
     const allergiesList = allergies?.map(a => `- ${a.allergen}`).join('\n') || 'None'
 
-    const prompt = `You are an expert supplement and medication analyst. Analyze this person's complete health profile.
+    const prompt = `You are an expert supplement and medication analyst. Analyze this person's complete health profile and provide a detailed, easy-to-read analysis.
 
 CURRENT SUPPLEMENTS:
 ${supplementList}
@@ -45,37 +44,21 @@ ${conditionsList}
 ALLERGIES:
 ${allergiesList}
 
-Provide a comprehensive analysis. If they have medications/conditions but few supplements, suggest what they SHOULD add. If they have supplements + medications, check for dangerous interactions.
+Provide a comprehensive analysis in clear, readable paragraphs. Structure your response with these sections:
 
-Respond in EXACT JSON format:
-{
-  "overallScore": 75,
-  "summary": "2-3 sentence overview of their health profile",
-  "dangerousInteractions": [
-    {"supplements": "names", "severity": "high|medium|low", "issue": "what's wrong", "solution": "what to do"}
-  ],
-  "timingConflicts": [
-    {"supplements": "names", "issue": "timing problem", "solution": "better schedule"}
-  ],
-  "redundancies": [
-    {"supplements": "names", "issue": "overlap", "solution": "consolidate"}
-  ],
-  "missingCofactors": [
-    {"for": "supplement/medication", "missing": "what's needed", "reason": "why", "benefit": "improvement"}
-  ],
-  "optimizations": [
-    {"supplement": "name", "current": "current approach", "better": "improved approach", "benefit": "result"}
-  ],
-  "recommendedSupplements": [
-    {"name": "supplement", "reason": "why they need it based on conditions/meds", "benefit": "expected outcome"}
-  ],
-  "moneySaved": 0,
-  "safetyScore": 8
-}
+1. **OVERVIEW** - 2-3 sentences summarizing their current stack and health profile
 
-CRITICAL: Check medication interactions first - these are life-threatening! If someone takes Warfarin and Vitamin K, this is DANGEROUS. If diabetic taking high-dose chromium, this is DANGEROUS.
+2. **⚠️ DANGEROUS INTERACTIONS** - Any life-threatening or severe interactions between supplements, medications, and health conditions. Be specific about what to stop immediately.
 
-Be specific and actionable. Empty arrays if no issues in that category.`
+3. **⚡ OPTIMIZATION OPPORTUNITIES** - How they can improve timing, dosing, or combinations for better results
+
+4. **💊 RECOMMENDED ADDITIONS** - What supplements they should consider adding based on their medications/conditions, with clear reasoning
+
+5. **💰 COST SAVINGS** - Any redundant supplements they can eliminate
+
+6. **✅ SAFETY SCORE** - Rate their stack 1-10 for safety
+
+Be conversational, specific, and actionable. Focus on practical advice they can implement immediately.`
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -83,14 +66,9 @@ Be specific and actionable. Empty arrays if no issues in that category.`
       messages: [{ role: 'user', content: prompt }],
     })
 
-    const text = message.content[0].text
-    const match = text.match(/\{[\s\S]*\}/)
-    
-    if (!match) {
-      return NextResponse.json({ error: 'Parse failed' }, { status: 400 })
-    }
+    const analysis = message.content[0].text
 
-    return NextResponse.json(JSON.parse(match[0]))
+    return NextResponse.json({ analysis })
 
   } catch (error) {
     console.error('Analysis error:', error)
