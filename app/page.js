@@ -1,9 +1,12 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const router = useRouter()
   const [supplements, setSupplements] = useState(['', '', ''])
   const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const addSupplement = () => {
     setSupplements([...supplements, ''])
@@ -15,10 +18,52 @@ export default function Home() {
     setSupplements(newSupps)
   }
 
-  const handleAnalyze = (e) => {
+  const removeSupplement = (index) => {
+    if (supplements.length > 2) {
+      setSupplements(supplements.filter((_, i) => i !== index))
+    }
+  }
+
+  const handleAnalyze = async (e) => {
     e.preventDefault()
-    // Redirect to app download for now
-    window.location.href = 'https://apps.apple.com/app/supmize/id6756226894'
+    
+    const filledSupps = supplements.filter(s => s.trim())
+    if (filledSupps.length < 2) {
+      alert('Please enter at least 2 supplements')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          supplements: filledSupps.map(name => ({ name, dosage: '' })),
+          email: email
+        })
+      })
+
+      const data = await response.json()
+      
+      if (data.analysis) {
+        // Store results and navigate to results page
+        localStorage.setItem('analysisResults', JSON.stringify({
+          supplements: filledSupps,
+          analysis: data.analysis,
+          email: email
+        }))
+        router.push('/results')
+      } else {
+        alert('Analysis failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('Analysis error:', error)
+      alert('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -73,15 +118,24 @@ export default function Home() {
 
           <form onSubmit={handleAnalyze} className="space-y-4">
             {supplements.map((supp, index) => (
-              <div key={index}>
+              <div key={index} className="flex gap-2">
                 <input
                   type="text"
                   placeholder={`Supplement ${index + 1}`}
                   value={supp}
                   onChange={(e) => updateSupplement(index, e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none text-lg"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none text-lg"
                   required={index < 2}
                 />
+                {index >= 3 && (
+                  <button
+                    type="button"
+                    onClick={() => removeSupplement(index)}
+                    className="px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg font-bold"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             ))}
 
@@ -106,9 +160,10 @@ export default function Home() {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-teal-600 to-teal-700 text-white py-4 rounded-lg font-bold text-lg hover:from-teal-700 hover:to-teal-800 transition shadow-lg"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-teal-600 to-teal-700 text-white py-4 rounded-lg font-bold text-lg hover:from-teal-700 hover:to-teal-800 transition shadow-lg disabled:opacity-50"
             >
-              Analyze My Supplements FREE
+              {loading ? 'Analyzing...' : 'Analyze My Supplements FREE'}
             </button>
 
             <p className="text-center text-sm text-gray-500 mt-3">
@@ -127,7 +182,6 @@ export default function Home() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            {/* Card 1 */}
             <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
               <div className="text-4xl mb-3">⚠️</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Dangerous Interactions</h3>
@@ -136,7 +190,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 2 */}
             <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-orange-500">
               <div className="text-4xl mb-3">💸</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Wasted Money</h3>
@@ -145,7 +198,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 3 */}
             <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-yellow-500">
               <div className="text-4xl mb-3">⏰</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Wrong Timing</h3>
@@ -154,7 +206,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 4 */}
             <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
               <div className="text-4xl mb-3">❓</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Missing Nutrients</h3>
@@ -163,7 +214,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 5 */}
             <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
               <div className="text-4xl mb-3">🔬</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Wrong Forms</h3>
@@ -172,7 +222,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 6 */}
             <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-600">
               <div className="text-4xl mb-3">🏥</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Medication Conflicts</h3>
