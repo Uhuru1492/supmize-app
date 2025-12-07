@@ -284,7 +284,7 @@ export default function Home() {
               <ul className="text-left space-y-3 mb-6">
                 <li className="flex items-start gap-2">
                   <span className="text-teal-600 font-bold">✓</span>
-                  <span>1 AI Analysis per month</span>
+                  <span>1 Supplement Analysis per month</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-teal-600 font-bold">✓</span>
@@ -306,7 +306,7 @@ export default function Home() {
               <ul className="text-left space-y-3 mb-6">
                 <li className="flex items-start gap-2">
                   <span className="font-bold">✓</span>
-                  <span>Unlimited AI Analysis</span>
+                  <span>Unlimited Supplement Analysis</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-bold">✓</span>
