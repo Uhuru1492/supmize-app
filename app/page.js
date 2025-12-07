@@ -288,7 +288,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-teal-600 font-bold">✓</span>
-                  <span>3 Shop Checks per month</span>
+                  <span>1 Shop Check per month</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-teal-600 font-bold">✓</span>
