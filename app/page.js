@@ -444,7 +444,7 @@ export default function Home() {
               onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none"
+              className="flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 focus:outline-none"
             />
             <button
               type="submit"
