@@ -121,6 +121,7 @@ export default function Home() {
           </a>
           <nav className="flex gap-6">
             <a href="/" className="text-teal-600 font-semibold">Home</a>
+            <a href="/blog" className="text-gray-600 hover:text-teal-600">Blog</a>
             <a href="/contact" className="text-gray-600 hover:text-teal-600">Contact</a>
           </nav>
         </div>
@@ -173,7 +174,7 @@ export default function Home() {
               onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+              className="flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
             />
             <button
               type="submit"
@@ -465,6 +466,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="mb-4">
             <a href="/" className="hover:text-white mx-3 text-sm">Home</a>
+            <a href="/blog" className="hover:text-white mx-3 text-sm">Blog</a>
             <a href="/contact" className="hover:text-white mx-3 text-sm">Contact</a>
             <a href="/privacy" className="hover:text-white mx-3 text-sm">Privacy Policy</a>
             <a href="/terms" className="hover:text-white mx-3 text-sm">Terms & Conditions</a>
