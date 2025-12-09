@@ -20,35 +20,42 @@ export async function POST(request) {
       )
     }
 
-    // Send emails in batches
     const emails = subscribers.map(sub => sub.email)
     
     // Send to all subscribers
     const results = await Promise.all(
       emails.map(async (email) => {
         try {
-          const { data, error } = await resend.emails.send({
+          console.log('Sending to:', email)
+          const result = await resend.emails.send({
             from: sender || 'Supmize <onboarding@resend.dev>',
             to: [email],
             subject: subject,
             html: content
           })
           
-          return { email, success: !error, error }
+          console.log('Result:', result)
+          
+          return { email, success: !result.error, error: result.error, data: result.data }
         } catch (err) {
+          console.error('Send error:', err)
           return { email, success: false, error: err.message }
         }
       })
     )
 
+    console.log('All results:', results)
+
     const successCount = results.filter(r => r.success).length
     const failCount = results.filter(r => !r.success).length
+    const errors = results.filter(r => !r.success).map(r => ({ email: r.email, error: r.error }))
 
     return NextResponse.json({ 
       success: true,
       sent: successCount,
       failed: failCount,
-      total: emails.length
+      total: emails.length,
+      errors: errors
     })
   } catch (error) {
     console.error('Send newsletter error:', error)
