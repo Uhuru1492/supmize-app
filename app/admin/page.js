@@ -16,7 +16,8 @@ export default function AdminPanel() {
     contactMessages: 0,
     totalAnalyses: 0,
     totalShopChecks: 0,
-    todaySignups: 0
+    todaySignups: 0,
+    blogPosts: 0
   })
   const [newsletters, setNewsletters] = useState([])
   const [contacts, setContacts] = useState([])
@@ -47,12 +48,13 @@ export default function AdminPanel() {
   const fetchAllData = async () => {
     setLoading(true)
     
-    const [usersData, newsletterData, contactData, analysisData, shopCheckData] = await Promise.all([
+    const [usersData, newsletterData, contactData, analysisData, shopCheckData, blogData] = await Promise.all([
       supabase.from('users').select('*'),
       supabase.from('newsletter_subscribers').select('*'),
       supabase.from('contact_messages').select('*'),
       supabase.from('analysis_history').select('*'),
-      supabase.from('shop_check_history').select('*')
+      supabase.from('shop_check_history').select('*'),
+      supabase.from('blog_posts').select('*')
     ])
 
     const totalUsers = usersData.data?.length || 0
@@ -71,7 +73,8 @@ export default function AdminPanel() {
       contactMessages: contactData.data?.length || 0,
       totalAnalyses: analysisData.data?.length || 0,
       totalShopChecks: shopCheckData.data?.length || 0,
-      todaySignups
+      todaySignups,
+      blogPosts: blogData.data?.length || 0
     })
 
     setNewsletters(newsletterData.data || [])
@@ -142,18 +145,24 @@ export default function AdminPanel() {
               <p className="text-xs text-gray-500">Manage app & website</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/admin/blog')}
+              className="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-600"
+            >
+              📝 Blog
+            </button>
             <button
               onClick={() => router.push('/admin/newsletter')}
               className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600"
             >
-              📧 Send Newsletter
+              📧 Newsletter
             </button>
             <button
               onClick={fetchAllData}
               className="text-teal-600 hover:text-teal-700 font-semibold text-sm"
             >
-              🔄 Refresh
+              🔄
             </button>
             <button
               onClick={handleLogout}
@@ -220,9 +229,9 @@ export default function AdminPanel() {
                   </div>
 
                   <div className="bg-white p-6 rounded-xl shadow-sm border">
-                    <div className="text-3xl mb-2">💬</div>
-                    <div className="text-3xl font-bold text-gray-900">{stats.contactMessages}</div>
-                    <div className="text-sm text-gray-600">Contact Messages</div>
+                    <div className="text-3xl mb-2">📝</div>
+                    <div className="text-3xl font-bold text-gray-900">{stats.blogPosts}</div>
+                    <div className="text-sm text-gray-600">Blog Posts</div>
                   </div>
                 </div>
 
@@ -237,6 +246,10 @@ export default function AdminPanel() {
                       <div className="flex justify-between">
                         <span className="text-gray-600">Total Shop Checks</span>
                         <span className="font-bold text-gray-900">{stats.totalShopChecks}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Contact Messages</span>
+                        <span className="font-bold text-gray-900">{stats.contactMessages}</span>
                       </div>
                     </div>
                   </div>
