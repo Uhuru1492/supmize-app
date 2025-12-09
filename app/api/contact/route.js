@@ -1,16 +1,32 @@
 import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request) {
   try {
     const { name, email, subject, message } = await request.json()
 
-    // For now, just log it (you can add email service later)
-    console.log('Contact form submission:', { name, email, subject, message })
+    // Save to database
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .insert([
+        { 
+          name,
+          email,
+          subject,
+          message
+        }
+      ])
+      .select()
 
-    // TODO: Add email service integration (Resend, SendGrid, etc.)
-    // For now, we'll just return success
-    
-    // You can add this to send to your email:
+    if (error) {
+      console.error('Contact form error:', error)
+      return NextResponse.json(
+        { success: false, error: 'Failed to send message' },
+        { status: 500 }
+      )
+    }
+
+    // TODO: Send email notification to admin
     // await sendEmail({
     //   to: 'admin@voise.co.uk',
     //   subject: `Contact Form: ${subject}`,
@@ -22,9 +38,9 @@ export async function POST(request) {
       message: 'Message received' 
     })
   } catch (error) {
-    console.error('Contact form error:', error)
+    console.error('Contact API error:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to send message' },
+      { success: false, error: 'Server error' },
       { status: 500 }
     )
   }
