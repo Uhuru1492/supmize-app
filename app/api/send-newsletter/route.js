@@ -26,36 +26,28 @@ export async function POST(request) {
     const results = await Promise.all(
       emails.map(async (email) => {
         try {
-          console.log('Sending to:', email)
           const result = await resend.emails.send({
-            from: sender || 'Supmize <onboarding@resend.dev>',
+            from: sender || 'Supmize <newsletter@supmize.com>',
             to: [email],
             subject: subject,
             html: content
           })
           
-          console.log('Result:', result)
-          
-          return { email, success: !result.error, error: result.error, data: result.data }
+          return { email, success: !result.error, error: result.error }
         } catch (err) {
-          console.error('Send error:', err)
           return { email, success: false, error: err.message }
         }
       })
     )
 
-    console.log('All results:', results)
-
     const successCount = results.filter(r => r.success).length
     const failCount = results.filter(r => !r.success).length
-    const errors = results.filter(r => !r.success).map(r => ({ email: r.email, error: r.error }))
 
     return NextResponse.json({ 
       success: true,
       sent: successCount,
       failed: failCount,
-      total: emails.length,
-      errors: errors
+      total: emails.length
     })
   } catch (error) {
     console.error('Send newsletter error:', error)
