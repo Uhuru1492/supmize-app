@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function AdminPanel() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -21,8 +23,7 @@ export default function AdminPanel() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // Simple password auth (you should use proper auth in production)
-  const ADMIN_PASSWORD = 'supmize2025admin' // Change this!
+  const ADMIN_PASSWORD = 'supmize2025admin'
 
   const handleLogin = (e) => {
     e.preventDefault()
@@ -46,7 +47,6 @@ export default function AdminPanel() {
   const fetchAllData = async () => {
     setLoading(true)
     
-    // Fetch stats
     const [usersData, newsletterData, contactData, analysisData, shopCheckData] = await Promise.all([
       supabase.from('users').select('*'),
       supabase.from('newsletter_subscribers').select('*'),
@@ -58,7 +58,6 @@ export default function AdminPanel() {
     const totalUsers = usersData.data?.length || 0
     const proUsers = usersData.data?.filter(u => u.is_pro)?.length || 0
     
-    // Calculate today's signups
     const today = new Date().toISOString().split('T')[0]
     const todaySignups = usersData.data?.filter(u => 
       u.created_at?.startsWith(today)
@@ -132,7 +131,6 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-gray-50">
       
-      {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -145,6 +143,12 @@ export default function AdminPanel() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/admin/newsletter')}
+              className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600"
+            >
+              📧 Send Newsletter
+            </button>
             <button
               onClick={fetchAllData}
               className="text-teal-600 hover:text-teal-700 font-semibold text-sm"
@@ -161,7 +165,6 @@ export default function AdminPanel() {
         </div>
       </header>
 
-      {/* Tabs */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-6">
@@ -182,7 +185,6 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         
         {loading ? (
@@ -192,7 +194,6 @@ export default function AdminPanel() {
           </div>
         ) : (
           <>
-            {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
@@ -251,7 +252,6 @@ export default function AdminPanel() {
               </div>
             )}
 
-            {/* Users Tab */}
             {activeTab === 'users' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
@@ -289,7 +289,6 @@ export default function AdminPanel() {
               </div>
             )}
 
-            {/* Newsletter Tab */}
             {activeTab === 'newsletter' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
@@ -327,7 +326,6 @@ export default function AdminPanel() {
               </div>
             )}
 
-            {/* Contacts Tab */}
             {activeTab === 'contacts' && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Messages ({stats.contactMessages})</h2>
