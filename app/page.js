@@ -7,6 +7,7 @@ export default function Home() {
   const [supplements, setSupplements] = useState(['', '', ''])
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+  const [bannerVisible, setBannerVisible] = useState(true)
 
   const addSupplement = () => {
     setSupplements([...supplements, ''])
@@ -48,7 +49,6 @@ export default function Home() {
       const data = await response.json()
       
       if (data.analysis) {
-        // Store results and navigate to results page
         localStorage.setItem('analysisResults', JSON.stringify({
           supplements: filledSupps,
           analysis: data.analysis,
@@ -69,12 +69,38 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-orange-50">
       
-      {/* Warning Banner */}
-      <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white py-3 px-4 text-center sticky top-0 z-50 shadow-lg">
-        <p className="text-sm md:text-base font-semibold">
-          ⚠️ 68% of supplement users have dangerous interactions they don't know about
-        </p>
-      </div>
+      {/* Warning Banner - Dismissible */}
+      {bannerVisible && (
+        <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white py-3 px-4 sticky top-0 z-50 shadow-lg">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <p className="text-sm md:text-base font-semibold flex-1 text-center">
+              ⚠️ 68% of supplement users have dangerous interactions they don't know about
+            </p>
+            <button 
+              onClick={() => setBannerVisible(false)}
+              className="ml-4 text-white hover:text-gray-200 text-xl font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation */}
+      <header className="bg-white shadow-sm sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <a href="/" className="flex items-center gap-2">
+            <div className="bg-gradient-to-br from-teal-600 to-teal-700 text-white w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold">
+              💊
+            </div>
+            <span className="text-xl font-bold text-gray-900">Supmize</span>
+          </a>
+          <nav className="flex gap-6">
+            <a href="/" className="text-teal-600 font-semibold">Home</a>
+            <a href="/contact" className="text-gray-600 hover:text-teal-600">Contact</a>
+          </nav>
+        </div>
+      </header>
 
       {/* Hero Section */}
       <section className="py-16 px-4">
@@ -350,9 +376,10 @@ export default function Home() {
       <footer className="py-8 px-4 bg-gray-900 text-gray-400 text-center">
         <div className="max-w-6xl mx-auto">
           <div className="mb-4">
+            <a href="/" className="hover:text-white mx-3 text-sm">Home</a>
+            <a href="/contact" className="hover:text-white mx-3 text-sm">Contact</a>
             <a href="/privacy" className="hover:text-white mx-3 text-sm">Privacy Policy</a>
             <a href="/terms" className="hover:text-white mx-3 text-sm">Terms & Conditions</a>
-            <a href="mailto:admin@voise.co.uk" className="hover:text-white mx-3 text-sm">Contact</a>
           </div>
           <p className="text-sm">© 2025 Voise Limited. All rights reserved.</p>
           <p className="text-xs mt-2 opacity-75">243 Weald Drive, Crawley, West Sussex, RH10 6PD, United Kingdom</p>
