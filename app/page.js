@@ -8,6 +8,8 @@ export default function Home() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [bannerVisible, setBannerVisible] = useState(true)
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterStatus, setNewsletterStatus] = useState('')
 
   const addSupplement = () => {
     setSupplements([...supplements, ''])
@@ -63,6 +65,28 @@ export default function Home() {
       alert('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleNewsletterSignup = async (e) => {
+    e.preventDefault()
+    setNewsletterStatus('loading')
+
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newsletterEmail })
+      })
+
+      if (response.ok) {
+        setNewsletterStatus('success')
+        setNewsletterEmail('')
+      } else {
+        setNewsletterStatus('error')
+      }
+    } catch (error) {
+      setNewsletterStatus('error')
     }
   }
 
@@ -129,6 +153,42 @@ export default function Home() {
               />
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* Lead Magnet Section */}
+      <section className="py-12 px-4">
+        <div className="max-w-4xl mx-auto bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl shadow-2xl p-8 md:p-12 text-white text-center">
+          <div className="text-5xl mb-4">📚</div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            FREE: Supplement Safety Guide
+          </h2>
+          <p className="text-xl mb-6 opacity-90">
+            Learn the 7 most dangerous supplement interactions and how to avoid them
+          </p>
+          <form onSubmit={handleNewsletterSignup} className="max-w-md mx-auto flex gap-3">
+            <input
+              type="email"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+            />
+            <button
+              type="submit"
+              disabled={newsletterStatus === 'loading'}
+              className="bg-white text-orange-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition disabled:opacity-50"
+            >
+              {newsletterStatus === 'loading' ? '...' : 'Get Free Guide'}
+            </button>
+          </form>
+          {newsletterStatus === 'success' && (
+            <p className="mt-4 text-sm">✅ Check your email for the free guide!</p>
+          )}
+          {newsletterStatus === 'error' && (
+            <p className="mt-4 text-sm">❌ Something went wrong. Please try again.</p>
+          )}
         </div>
       </section>
 
@@ -369,6 +429,34 @@ export default function Home() {
               className="h-16"
             />
           </a>
+        </div>
+      </section>
+
+      {/* Newsletter Signup in Footer */}
+      <section className="py-12 px-4 bg-gray-800 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h3 className="text-2xl font-bold mb-3">Stay Updated on Supplement Safety</h3>
+          <p className="text-gray-300 mb-6">Get weekly tips, research updates, and exclusive offers</p>
+          <form onSubmit={handleNewsletterSignup} className="max-w-md mx-auto flex gap-3">
+            <input
+              type="email"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={newsletterStatus === 'loading'}
+              className="bg-teal-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-teal-700 transition disabled:opacity-50"
+            >
+              {newsletterStatus === 'loading' ? '...' : 'Subscribe'}
+            </button>
+          </form>
+          {newsletterStatus === 'success' && (
+            <p className="mt-4 text-sm text-green-400">✅ Successfully subscribed!</p>
+          )}
         </div>
       </section>
 
