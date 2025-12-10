@@ -61,7 +61,7 @@ export default async function BlogPage() {
               {posts.map((post) => (
                 <Link 
                   key={post.id} 
-                  href={{`/blog/${post.slug}`}
+                  href={"/blog/" + post.slug}
                   className="bg-white rounded-2xl shadow-sm border hover:shadow-lg transition overflow-hidden group"
                 >
                   {post.featured_image && (
