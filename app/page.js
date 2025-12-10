@@ -367,7 +367,7 @@ export default function Home() {
             
             <div className="p-8 bg-gray-50 rounded-2xl border-2 border-gray-200">
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Free</h3>
-              <p className="text-4xl font-bold text-teal-600 mb-6">£0<span className="text-lg text-gray-600">/month</span></p>
+              <p className="text-4xl font-bold text-teal-600 mb-6">$0<span className="text-lg text-gray-600">/month</span></p>
               <ul className="text-left space-y-3 mb-6">
                 <li className="flex items-start gap-2">
                   <span className="text-teal-600 font-bold">✓</span>
