@@ -389,7 +389,7 @@ export default function Home() {
                 MOST POPULAR
               </div>
               <h3 className="text-2xl font-bold mb-2">Pro</h3>
-              <p className="text-4xl font-bold mb-6">£4.99<span className="text-lg opacity-80">/month</span></p>
+              <p className="text-4xl font-bold mb-6">£9.99<span className="text-lg opacity-80">/month</span></p>
               <ul className="text-left space-y-3 mb-6">
                 <li className="flex items-start gap-2">
                   <span className="font-bold">✓</span>

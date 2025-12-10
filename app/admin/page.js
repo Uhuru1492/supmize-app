@@ -265,7 +265,7 @@ export default function AdminPanel() {
                 <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-xl border border-teal-200">
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Revenue (Estimated)</h3>
                   <div className="text-3xl font-bold text-teal-700 mb-2">
-                    £{(stats.proUsers * 4.99).toFixed(2)}
+                    £{(stats.proUsers * 9.99).toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-600">Monthly recurring revenue</div>
                 </div>
