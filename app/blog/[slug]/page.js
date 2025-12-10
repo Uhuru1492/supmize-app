@@ -3,13 +3,16 @@ import { supabase } from '@/lib/supabase'
 import { marked } from 'marked'
 
 async function getBlogPost(slug) {
-  const { data } = await supabase
+  console.log('Looking for slug:', slug)
+  
+  const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
     .eq('slug', slug)
     .eq('published', true)
     .single()
   
+  console.log('Query result:', data, 'Error:', error)
   return data
 }
 
@@ -21,6 +24,7 @@ export default async function BlogPostPage({ params }) {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Post Not Found</h1>
+          <p className="text-gray-600 mb-4">Slug searched: {params.slug}</p>
           <Link href="/blog" className="text-teal-600 hover:underline">
             ← Back to Blog
           </Link>
