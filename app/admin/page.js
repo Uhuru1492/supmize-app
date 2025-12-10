@@ -16,12 +16,15 @@ export default function AdminPanel() {
     contactMessages: 0,
     totalAnalyses: 0,
     totalShopChecks: 0,
+    totalSupplements: 0,
     todaySignups: 0,
     blogPosts: 0
   })
   const [newsletters, setNewsletters] = useState([])
   const [contacts, setContacts] = useState([])
   const [users, setUsers] = useState([])
+  const [shopChecks, setShopChecks] = useState([])
+  const [supplements, setSupplements] = useState([])
   const [loading, setLoading] = useState(true)
 
   const ADMIN_PASSWORD = 'supmize2025admin'
@@ -48,13 +51,14 @@ export default function AdminPanel() {
   const fetchAllData = async () => {
     setLoading(true)
     
-    const [usersData, newsletterData, contactData, analysisData, shopCheckData, blogData] = await Promise.all([
+    const [usersData, newsletterData, contactData, analysisData, shopCheckData, blogData, supplementsData] = await Promise.all([
       supabase.from('users').select('*'),
       supabase.from('newsletter_subscribers').select('*'),
       supabase.from('contact_messages').select('*'),
       supabase.from('analysis_history').select('*'),
-      supabase.from('shop_check_history').select('*'),
-      supabase.from('blog_posts').select('*')
+      supabase.from('shop_check_history').select('*, users(email)'),
+      supabase.from('blog_posts').select('*'),
+      supabase.from('supplements').select('*, users(email)')
     ])
 
     const totalUsers = usersData.data?.length || 0
@@ -73,6 +77,7 @@ export default function AdminPanel() {
       contactMessages: contactData.data?.length || 0,
       totalAnalyses: analysisData.data?.length || 0,
       totalShopChecks: shopCheckData.data?.length || 0,
+      totalSupplements: supplementsData.data?.length || 0,
       todaySignups,
       blogPosts: blogData.data?.length || 0
     })
@@ -80,6 +85,8 @@ export default function AdminPanel() {
     setNewsletters(newsletterData.data || [])
     setContacts(contactData.data || [])
     setUsers(usersData.data || [])
+    setShopChecks(shopCheckData.data || [])
+    setSupplements(supplementsData.data || [])
     
     setLoading(false)
   }
@@ -176,18 +183,18 @@ export default function AdminPanel() {
 
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-6">
-            {['overview', 'users', 'newsletter', 'contacts'].map(tab => (
+          <div className="flex gap-6 overflow-x-auto">
+            {['overview', 'users', 'shop-checks', 'supplements', 'newsletter', 'contacts'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`py-4 px-2 font-semibold border-b-2 transition ${
+                className={`py-4 px-2 font-semibold border-b-2 transition whitespace-nowrap ${
                   activeTab === tab
                     ? 'border-teal-600 text-teal-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </button>
             ))}
           </div>
@@ -223,6 +230,20 @@ export default function AdminPanel() {
                   </div>
 
                   <div className="bg-white p-6 rounded-xl shadow-sm border">
+                    <div className="text-3xl mb-2">💊</div>
+                    <div className="text-3xl font-bold text-gray-900">{stats.totalSupplements}</div>
+                    <div className="text-sm text-gray-600">Total Supplements</div>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-xl shadow-sm border">
+                    <div className="text-3xl mb-2">📸</div>
+                    <div className="text-3xl font-bold text-gray-900">{stats.totalShopChecks}</div>
+                    <div className="text-sm text-gray-600">Shop Checks</div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-white p-6 rounded-xl shadow-sm border">
                     <div className="text-3xl mb-2">📧</div>
                     <div className="text-3xl font-bold text-gray-900">{stats.newsletterSubs}</div>
                     <div className="text-sm text-gray-600">Newsletter Subscribers</div>
@@ -233,34 +254,20 @@ export default function AdminPanel() {
                     <div className="text-3xl font-bold text-gray-900">{stats.blogPosts}</div>
                     <div className="text-sm text-gray-600">Blog Posts</div>
                   </div>
+
+                  <div className="bg-white p-6 rounded-xl shadow-sm border">
+                    <div className="text-3xl mb-2">💬</div>
+                    <div className="text-3xl font-bold text-gray-900">{stats.contactMessages}</div>
+                    <div className="text-sm text-gray-600">Contact Messages</div>
+                  </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-white p-6 rounded-xl shadow-sm border">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">App Usage</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Total Analyses</span>
-                        <span className="font-bold text-gray-900">{stats.totalAnalyses}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Total Shop Checks</span>
-                        <span className="font-bold text-gray-900">{stats.totalShopChecks}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Contact Messages</span>
-                        <span className="font-bold text-gray-900">{stats.contactMessages}</span>
-                      </div>
-                    </div>
+                <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-xl border border-teal-200">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Revenue (Estimated)</h3>
+                  <div className="text-3xl font-bold text-teal-700 mb-2">
+                    £{(stats.proUsers * 4.99).toFixed(2)}
                   </div>
-
-                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-xl border border-teal-200">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Revenue (Estimated)</h3>
-                    <div className="text-3xl font-bold text-teal-700 mb-2">
-                      £{(stats.proUsers * 4.99).toFixed(2)}
-                    </div>
-                    <div className="text-sm text-gray-600">Monthly recurring revenue</div>
-                  </div>
+                  <div className="text-sm text-gray-600">Monthly recurring revenue</div>
                 </div>
               </div>
             )}
@@ -293,6 +300,80 @@ export default function AdminPanel() {
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-600">
                             {new Date(user.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'shop-checks' && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Shop Checks ({stats.totalShopChecks})</h2>
+                
+                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Supplement</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Result</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {shopChecks.slice(0, 50).map((check, i) => (
+                        <tr key={i} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-900">{check.users?.email || 'Unknown'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{check.supplement_name || 'N/A'}</td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${
+                              check.result?.toLowerCase().includes('safe') 
+                                ? 'bg-green-100 text-green-800' 
+                                : check.result?.toLowerCase().includes('warning')
+                                ? 'bg-orange-100 text-orange-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {check.result || 'Analyzed'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {new Date(check.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'supplements' && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">User Supplements ({stats.totalSupplements})</h2>
+                
+                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Supplement</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Dosage</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Timing</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Added</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {supplements.slice(0, 50).map((supp, i) => (
+                        <tr key={i} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-900">{supp.users?.email || 'Unknown'}</td>
+                          <td className="px-6 py-4 text-sm font-semibold text-gray-700">{supp.name}</td>
+                          <td className="px-6 py-4 text-sm text-gray-600">{supp.dosage || 'N/A'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-600">{supp.timing || 'N/A'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {new Date(supp.created_at).toLocaleDateString()}
                           </td>
                         </tr>
                       ))}
