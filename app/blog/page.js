@@ -17,7 +17,6 @@ export default async function BlogPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-orange-50">
       
-      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -34,7 +33,6 @@ export default async function BlogPage() {
         </div>
       </header>
 
-      {/* Hero */}
       <section className="py-16 px-4 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -46,7 +44,6 @@ export default async function BlogPage() {
         </div>
       </section>
 
-      {/* Blog Posts */}
       <section className="py-12 px-4">
         <div className="max-w-6xl mx-auto">
           
@@ -58,51 +55,53 @@ export default async function BlogPage() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {posts.map((post) => (
-                <Link 
-                  key={post.id} 
-                  href={"/blog/" + post.slug}
-                  className="bg-white rounded-2xl shadow-sm border hover:shadow-lg transition overflow-hidden group"
-                >
-                  {post.featured_image && (
-                    <div className="h-48 bg-gradient-to-br from-teal-100 to-orange-100 overflow-hidden">
-                      <img 
-                        src={post.featured_image} 
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition"
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="p-6">
-                    {post.category && (
-                      <span className="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                        {post.category}
-                      </span>
+              {posts.map((post) => {
+                const postUrl = '/blog/' + post.slug
+                return (
+                  <Link 
+                    key={post.id} 
+                    href={postUrl}
+                    className="bg-white rounded-2xl shadow-sm border hover:shadow-lg transition overflow-hidden group"
+                  >
+                    {post.featured_image && (
+                      <div className="h-48 bg-gradient-to-br from-teal-100 to-orange-100 overflow-hidden">
+                        <img 
+                          src={post.featured_image} 
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition"
+                        />
+                      </div>
                     )}
                     
-                    <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition">
-                      {post.title}
-                    </h2>
-                    
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                      {post.excerpt}
-                    </p>
-                    
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>{new Date(post.published_at).toLocaleDateString()}</span>
-                      <span>{post.read_time || '5'} min read</span>
+                    <div className="p-6">
+                      {post.category && (
+                        <span className="inline-block bg-teal-100 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                          {post.category}
+                        </span>
+                      )}
+                      
+                      <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition">
+                        {post.title}
+                      </h2>
+                      
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                        {post.excerpt}
+                      </p>
+                      
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{new Date(post.published_at).toLocaleDateString()}</span>
+                        <span>{post.read_time || '5'} min read</span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                )
+              })}
             </div>
           )}
 
         </div>
       </section>
 
-      {/* Newsletter CTA */}
       <section className="py-12 px-4 bg-gradient-to-r from-teal-600 to-teal-700 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Get Weekly Safety Tips</h2>
@@ -118,7 +117,6 @@ export default async function BlogPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="py-8 px-4 bg-gray-900 text-gray-400 text-center">
         <div className="max-w-6xl mx-auto">
           <div className="mb-4">
@@ -135,4 +133,3 @@ export default async function BlogPage() {
     </div>
   )
 }
-
