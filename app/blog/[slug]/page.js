@@ -3,25 +3,14 @@ import { supabase } from '@/lib/supabase'
 import { marked } from 'marked'
 import '../../blog-styles.css'
 
-// Configure marked properly
-marked.use({
+// Configure marked options
+marked.setOptions({
   breaks: true,
   gfm: true,
   pedantic: false,
   headerIds: true,
   mangle: false,
-  sanitize: false,
-  renderer: {
-    // Ensure list items render correctly
-    listitem(text) {
-      return `<li>${text}</li>\n`
-    },
-    list(body, ordered, start) {
-      const type = ordered ? 'ol' : 'ul'
-      const startatt = (ordered && start !== 1) ? (' start="' + start + '"') : ''
-      return '<' + type + startatt + '>\n' + body + '</' + type + '>\n'
-    }
-  }
+  sanitize: false
 })
 
 async function getBlogPost(slug) {
@@ -109,16 +98,12 @@ export default async function BlogPostPage({ params }) {
 
         </div>
 
-        {post.featured_image && (
+        {post.featured_image && post.featured_image.trim() !== '' && (
           <div className="my-12">
             <img 
               src={post.featured_image} 
               alt={post.title}
               className="w-full max-w-[1400px] mx-auto h-auto"
-              onError={(e) => {
-                console.error('Failed to load featured image:', post.featured_image)
-                e.target.style.display = 'none'
-              }}
             />
           </div>
         )}
