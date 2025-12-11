@@ -3,7 +3,6 @@ import { supabase } from '@/lib/supabase'
 import { marked } from 'marked'
 import '../../blog-styles.css'
 
-// Configure marked options
 marked.setOptions({
   breaks: true,
   gfm: true,
@@ -98,12 +97,13 @@ export default async function BlogPostPage({ params }) {
 
         </div>
 
+        {/* Featured Image - Constrained width */}
         {post.featured_image && post.featured_image.trim() !== '' && (
-          <div className="my-12">
+          <div className="max-w-[900px] mx-auto px-6 my-12">
             <img 
               src={post.featured_image} 
               alt={post.title}
-              className="w-full max-w-[1400px] mx-auto h-auto"
+              className="w-full h-auto rounded-xl shadow-lg"
             />
           </div>
         )}
