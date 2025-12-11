@@ -99,7 +99,7 @@ export default async function BlogPostPage({ params }) {
 
         {/* Featured Image - Constrained width */}
         {post.featured_image && post.featured_image.trim() !== '' && (
-          <div className="max-w-[900px] mx-auto px-6 my-12">
+          <div className="max-w-[680px] mx-auto px-6 my-12">
             <img 
               src={post.featured_image} 
               alt={post.title}
