@@ -3,28 +3,26 @@ import { supabase } from '@/lib/supabase'
 import { marked } from 'marked'
 
 async function getBlogPost(slug) {
-  console.log('Looking for slug:', slug)
-  
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('blog_posts')
     .select('*')
     .eq('slug', slug)
     .eq('published', true)
     .single()
   
-  console.log('Query result:', data, 'Error:', error)
   return data
 }
 
 export default async function BlogPostPage({ params }) {
-  const post = await getBlogPost(params.slug)
+  // IMPORTANT: In Next.js 15+, params is a Promise
+  const resolvedParams = await params
+  const post = await getBlogPost(resolvedParams.slug)
 
   if (!post) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Post Not Found</h1>
-          <p className="text-gray-600 mb-4">Slug searched: {params.slug}</p>
           <Link href="/blog" className="text-teal-600 hover:underline">
             ← Back to Blog
           </Link>
@@ -113,7 +111,8 @@ export default async function BlogPostPage({ params }) {
               prose-blockquote:border-l-4 prose-blockquote:border-teal-500 
               prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600
               prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded
-              prose-pre:bg-gray-900 prose-pre:text-gray-100"
+              prose-pre:bg-gray-900 prose-pre:text-gray-100
+              prose-img:rounded-xl prose-img:shadow-lg"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
 
@@ -123,6 +122,7 @@ export default async function BlogPostPage({ params }) {
             <a 
               href="https://apps.apple.com/app/supmize/id6756226894"
               target="_blank"
+              rel="noopener noreferrer"
               className="inline-block bg-white text-teal-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition"
             >
               Download Now
