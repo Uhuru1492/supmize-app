@@ -23,6 +23,55 @@ async function getBlogPost(slug) {
   return data
 }
 
+// Generate metadata for SEO and social sharing
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params
+  const post = await getBlogPost(resolvedParams.slug)
+
+  if (!post) {
+    return {
+      title: 'Post Not Found',
+    }
+  }
+
+  const siteUrl = 'https://www.supmize.com'
+  const postUrl = `${siteUrl}/blog/${post.slug}`
+  const imageUrl = post.featured_image || `${siteUrl}/og-default.jpg`
+
+  return {
+    title: post.title,
+    description: post.excerpt || post.title,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || post.title,
+      url: postUrl,
+      siteName: 'Supmize',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+      locale: 'en_US',
+      type: 'article',
+      publishedTime: post.published_at,
+      authors: [post.author || 'Supmize Team'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt || post.title,
+      images: [imageUrl],
+      creator: '@supmize',
+    },
+    alternates: {
+      canonical: postUrl,
+    },
+  }
+}
+
 export default async function BlogPostPage({ params }) {
   const resolvedParams = await params
   const post = await getBlogPost(resolvedParams.slug)
@@ -97,7 +146,6 @@ export default async function BlogPostPage({ params }) {
 
         </div>
 
-        {/* Featured Image - Constrained width */}
         {post.featured_image && post.featured_image.trim() !== '' && (
           <div className="max-w-[680px] mx-auto px-6 my-12">
             <img 
