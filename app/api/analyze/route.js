@@ -20,7 +20,7 @@ export async function POST(request) {
     }
 
     const supplementList = supplements?.map(s => 
-      `- ${s.name}${s.dosage ? ` (${s.dosage})` : ''}${s.timing ? ` - taken ${s.timing})` : ''}`
+      `- ${s.name}${s.dosage ? ` (${s.dosage})` : ''}${s.timing ? ` - taken ${s.timing}` : ''}`
     ).join('\n') || 'None'
 
     const medsList = medications?.map(m =>
