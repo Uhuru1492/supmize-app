@@ -1,6 +1,10 @@
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
+// Force revalidation - no caching
+export const revalidate = 0
+export const dynamic = 'force-dynamic'
+
 async function getBlogPosts() {
   const { data } = await supabase
     .from('blog_posts')
