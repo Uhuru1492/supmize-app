@@ -30,7 +30,8 @@ export async function POST(request) {
     const conditionsList = healthConditions?.map(c => `- ${c.condition}`).join('\n') || 'None'
     const allergiesList = allergies?.map(a => `- ${a.allergen}`).join('\n') || 'None'
 
-    const prompt = `You are an expert supplement and medication analyst. Analyze this person's complete health profile and provide a STRUCTURED JSON response.
+    // Keep the original text-based prompt for now (backward compatible)
+    const prompt = `You are an expert supplement and medication analyst. Analyze this person's complete health profile and provide a detailed, easy-to-read analysis.
 
 CURRENT SUPPLEMENTS:
 ${supplementList}
@@ -44,60 +45,21 @@ ${conditionsList}
 ALLERGIES:
 ${allergiesList}
 
-Return ONLY a valid JSON object (no markdown, no explanation) with this EXACT structure:
+Provide a comprehensive analysis in clear, readable paragraphs. Structure your response with these sections:
 
-{
-  "overallScore": 85,
-  "safetyScore": 90,
-  "efficacyScore": 80,
-  "transparencyScore": 85,
-  "summary": "Brief 2-3 sentence overview of their stack",
-  "theGood": [
-    "Positive point 1 with specific detail",
-    "Positive point 2 with specific detail",
-    "Positive point 3 with specific detail"
-  ],
-  "theBad": [
-    "Concern 1 with specific detail and what to do",
-    "Concern 2 with specific detail and what to do"
-  ],
-  "dangerousInteractions": [
-    {
-      "severity": "high",
-      "interaction": "Specific interaction description",
-      "action": "What to do immediately"
-    }
-  ],
-  "optimizations": [
-    {
-      "title": "Timing improvement",
-      "description": "Specific recommendation",
-      "expectedBenefit": "What they'll gain"
-    }
-  ],
-  "recommendations": [
-    {
-      "supplement": "Name",
-      "reason": "Why they should add it",
-      "dosage": "Recommended amount"
-    }
-  ],
-  "costSavings": [
-    {
-      "supplement": "Name to eliminate",
-      "reason": "Why it's redundant",
-      "monthlySavings": "$15"
-    }
-  ]
-}
+1. **OVERVIEW** - 2-3 sentences summarizing their current stack and health profile
 
-Scoring guidelines:
-- Overall Score (0-100): Weighted average of safety, efficacy, transparency
-- Safety Score (0-100): Based on interaction risks, contraindications
-- Efficacy Score (0-100): Based on optimal timing, absorption, synergies
-- Transparency Score (0-100): Based on ingredient quality, third-party testing
+2. **⚠️ DANGEROUS INTERACTIONS** - Any life-threatening or severe interactions between supplements, medications, and health conditions. Be specific about what to stop immediately.
 
-Be specific, actionable, and evidence-based. Return ONLY the JSON object.`
+3. **⚡ OPTIMIZATION OPPORTUNITIES** - How they can improve timing, dosing, or combinations for better results
+
+4. **💊 RECOMMENDED ADDITIONS** - What supplements they should consider adding based on their medications/conditions, with clear reasoning
+
+5. **💰 COST SAVINGS** - Any redundant supplements they can eliminate
+
+6. **✅ SAFETY SCORE** - Rate their stack 1-10 for safety
+
+Be conversational, specific, and actionable. Focus on practical advice they can implement immediately.`
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -105,26 +67,12 @@ Be specific, actionable, and evidence-based. Return ONLY the JSON object.`
       messages: [{ role: 'user', content: prompt }],
     })
 
-    let analysisText = message.content[0].text.trim()
-    
-    // Remove markdown code fences if present
-    analysisText = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-    
-    // Parse the JSON response
-    const analysisData = JSON.parse(analysisText)
+    const analysis = message.content[0].text
 
-    return NextResponse.json({ 
-      analysis: analysisData,
-      success: true 
-    })
+    return NextResponse.json({ analysis })
 
   } catch (error) {
     console.error('Analysis error:', error)
-    
-    // Fallback to text-based analysis if JSON parsing fails
-    return NextResponse.json({ 
-      error: 'Analysis failed',
-      fallback: true 
-    }, { status: 500 })
+    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 })
   }
 }
