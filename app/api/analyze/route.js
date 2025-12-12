@@ -20,7 +20,7 @@ export async function POST(request) {
     }
 
     const supplementList = supplements?.map(s => 
-      `- ${s.name}${s.dosage ? ` (${s.dosage})` : ''}${s.timing ? ` - taken ${s.timing}` : ''}`
+      `- ${s.name}${s.dosage ? ` (${s.dosage})` : ''}${s.timing ? ` - taken ${s.timing})` : ''}`
     ).join('\n') || 'None'
 
     const medsList = medications?.map(m =>
@@ -30,7 +30,6 @@ export async function POST(request) {
     const conditionsList = healthConditions?.map(c => `- ${c.condition}`).join('\n') || 'None'
     const allergiesList = allergies?.map(a => `- ${a.allergen}`).join('\n') || 'None'
 
-    // Keep the original text-based prompt for now (backward compatible)
     const prompt = `You are an expert supplement and medication analyst. Analyze this person's complete health profile and provide a detailed, easy-to-read analysis.
 
 CURRENT SUPPLEMENTS:
