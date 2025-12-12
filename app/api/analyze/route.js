@@ -19,13 +19,18 @@ export async function POST(request) {
       )
     }
 
-    const supplementList = supplements?.map(s => 
-      `- ${s.name}${s.dosage ? ` (${s.dosage})` : ''}${s.timing ? ` - taken ${s.timing}` : ''}`
-    ).join('\n') || 'None'
+    const supplementList = supplements?.map(s => {
+      let text = `- ${s.name}`
+      if (s.dosage) text += ` (${s.dosage})`
+      if (s.timing) text += ` - taken ${s.timing}`
+      return text
+    }).join('\n') || 'None'
 
-    const medsList = medications?.map(m =>
-      `- ${m.name}${m.dosage ? ` (${m.dosage})` : ''}`
-    ).join('\n') || 'None'
+    const medsList = medications?.map(m => {
+      let text = `- ${m.name}`
+      if (m.dosage) text += ` (${m.dosage})`
+      return text
+    }).join('\n') || 'None'
 
     const conditionsList = healthConditions?.map(c => `- ${c.condition}`).join('\n') || 'None'
     const allergiesList = allergies?.map(a => `- ${a.allergen}`).join('\n') || 'None'
@@ -72,6 +77,9 @@ Be conversational, specific, and actionable. Focus on practical advice they can 
 
   } catch (error) {
     console.error('Analysis error:', error)
-    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 })
+    return NextResponse.json({ 
+      error: error.message || 'Analysis failed',
+      details: error.toString()
+    }, { status: 500 })
   }
 }
