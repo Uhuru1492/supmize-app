@@ -11,7 +11,7 @@ const FEATURE_FLAGS = {
 
 // Beta testers who get early access
 const BETA_TESTERS = [
-  'sserubiri@gmail.com',
+  'sserubiri47@gmail.com',
   // Add more beta tester emails here
 ]
 
